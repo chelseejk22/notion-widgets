@@ -7,18 +7,41 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="widget" aria-live="polite">
-      <div class="summary">
-        <div>
-          <p class="label">AA Progress</p>
-          <p class="credits" id="credits">31/60 credits</p>
+    <main class="degree-card" data-cover-src="assets/aa-progress-cover.png" aria-live="polite">
+      <div class="cover" id="cover">
+        <img id="coverImage" alt="" />
+        <div class="cover-fallback">
+          <span class="crest">AA</span>
+          <span class="fallback-text">Graduation vision</span>
         </div>
-        <p class="percent" id="percent">52% complete</p>
       </div>
-      <div class="track" role="progressbar" aria-label="AA degree progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="fill" id="fill"></div>
+
+      <div class="card-content">
+        <div class="topline">
+          <span id="labelText">AA Progress</span>
+          <span id="percentTop">52%</span>
+        </div>
+
+        <h1 id="programTitle">Business Administration</h1>
+
+        <p class="subline">
+          <span id="creditLine">31 of 60 credits completed</span>
+          <span class="dot">•</span>
+          <span id="remainingLine">29 remaining</span>
+        </p>
+
+        <div class="progress-track" role="progressbar" aria-label="AA degree progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="52">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="footer-row">
+          <span><strong id="completedValue">31</strong> completed</span>
+          <span><strong id="remainingValue">29</strong> left</span>
+          <span><strong id="totalValue">60</strong> total</span>
+        </div>
       </div>
     </main>
+
     <script src="widget.js" type="module"></script>
   </body>
 </html>

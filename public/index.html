@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AA Progress</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="widget" aria-live="polite">
+      <div class="summary">
+        <div>
+          <p class="label">AA Progress</p>
+          <p class="credits" id="credits">31/60 credits</p>
+        </div>
+        <p class="percent" id="percent">52% complete</p>
+      </div>
+      <div class="track" role="progressbar" aria-label="AA degree progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="fill" id="fill"></div>
+      </div>
+    </main>
+    <script src="widget.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+[build]
+  publish = "public"
+  command = "npm run build"
+
+[functions]
+  directory = "netlify/functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "ALLOWALL"
+    Content-Security-Policy = "frame-ancestors https://www.notion.so https://notion.so;"

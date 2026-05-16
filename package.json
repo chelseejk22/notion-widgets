@@ -1,0 +1,15 @@
+{
+  "name": "aa-progress-widget",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo \"Static widget: no build step\""
+  },
+  "devDependencies": {
+    "@netlify/functions": "^3.1.10",
+    "netlify-cli": "^17.38.1",
+    "typescript": "^5.8.3"
+  }
+}

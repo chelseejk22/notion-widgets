@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Summer Semester Stats</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="summer-stats" aria-label="Summer semester dashboard stats">
+      <svg class="tropical-decor" viewBox="0 0 1200 170" aria-hidden="true" focusable="false">
+        <g class="decor-hibiscus" transform="translate(278 34)">
+          <circle cx="28" cy="27" r="8"></circle>
+          <ellipse cx="28" cy="5" rx="13" ry="25"></ellipse>
+          <ellipse cx="28" cy="49" rx="13" ry="25"></ellipse>
+          <ellipse cx="6" cy="28" rx="24" ry="12" transform="rotate(-18 6 28)"></ellipse>
+          <ellipse cx="50" cy="28" rx="24" ry="12" transform="rotate(18 50 28)"></ellipse>
+          <path d="M39 12c10-12 18-15 24-15M43 19c11-7 19-8 26-5M17 44c-10 10-19 12-28 10"></path>
+        </g>
+
+        <g class="decor-monstera" transform="translate(558 50) rotate(-12)">
+          <path d="M15 74C-1 43 7 12 37 2c35 10 51 44 36 77-18-8-33-9-58-5Z"></path>
+          <path d="M38 6c3 23 0 45-9 67M47 20c10 3 18 2 27-4M44 34c12 5 21 5 32 0M33 44c-10 4-19 4-29 0M31 58c-8 5-15 6-23 4"></path>
+        </g>
+
+        <g class="decor-palm" transform="translate(850 44)">
+          <path d="M47 93C45 64 37 34 19 4"></path>
+          <path d="M21 7c28 8 44 22 54 45M22 8c20 21 28 44 29 70M19 8C8 28 6 48 13 70M20 7c-17 7-27 19-31 35M20 7c25-3 46 3 65 17"></path>
+        </g>
+
+        <g class="decor-wave" transform="translate(1064 84)">
+          <path d="M-8 69c28-43 66-57 116-42 22 7 45-3 59-26-5 39-26 68-62 87-41 20-77 13-113-19Z"></path>
+          <path d="M22 57c22-25 49-31 82-18 17 6 34 1 46-14"></path>
+        </g>
+
+        <g class="decor-birds" transform="translate(1008 58)">
+          <path d="M0 10c8-8 16-8 24 0M42 7c7-7 14-7 21 0M78 14c10-10 20-10 30 0"></path>
+        </g>
+      </svg>
+
+      <div class="wave-band" aria-hidden="true">
+        <svg viewBox="0 0 1200 70" preserveAspectRatio="none" focusable="false">
+          <path class="wave-one" d="M0 31c92 35 165 36 265 4 114-36 200-35 321 1 116 34 208 30 334-10 120-38 205-33 280 8v36H0Z"></path>
+          <path class="wave-two" d="M0 44c93-21 177-20 252 2 119 36 214 26 325-11 113-38 219-32 322 16 85 38 192 30 301-17v36H0Z"></path>
+        </svg>
+      </div>
+
+      <section class="stats-grid" aria-label="Summer semester stats">
+        <article class="stat-card progress-card">
+          <div class="icon-bubble icon-blue" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M8 31c5 0 7-4 9-10 2-8 8-12 15-10 4 1 6 4 7 8-5-3-10-2-13 2-3 4-3 9 2 12 3 2 7 2 12 0"></path>
+              <path d="M8 36c5 0 5 2 10 2s5-2 10-2 5 2 10 2 5-2 10-2"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h1>Semester <span>Progress</span></h1>
+            <p class="stat-value aqua-value" id="progressPercent">0%</p>
+            <p class="stat-subtext">
+              <span class="full-text" id="daysCompleteFull">0 / 0 days complete</span>
+              <span class="short-text" id="daysCompleteShort">0/0 days</span>
+            </p>
+            <div class="progress-track" role="progressbar" aria-label="Semester progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="icon-bubble icon-green" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M7 19 24 10l17 9-17 9L7 19Z"></path>
+              <path d="M14 23v9c5 5 15 5 20 0v-9"></path>
+              <path d="M41 20v12M41 32c-2 1-4 1-6 0"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h1>Current <span>GPA</span></h1>
+            <p class="stat-value green-value" id="currentGpa">4.0</p>
+            <p class="stat-subtext">
+              <span class="full-text">Goal: keep A's</span>
+              <span class="short-text">Keep A's</span>
+            </p>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="icon-bubble icon-blue" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M10 12h10c4 0 6 2 6 6v22c0-4-2-6-6-6H10V12Z"></path>
+              <path d="M38 12H28c-4 0-6 2-6 6v22c0-4 2-6 6-6h10V12Z"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h1>Credits <span>Enrolled</span></h1>
+            <p class="stat-value aqua-value" id="creditsEnrolled">6</p>
+            <p class="stat-subtext">
+              <span class="full-text" id="classCountFull">2 summer classes</span>
+              <span class="short-text" id="classCountShort">2 classes</span>
+            </p>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="icon-bubble icon-green" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M13 15h22a4 4 0 0 1 4 4v17a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V19a4 4 0 0 1 4-4Z"></path>
+              <path d="M16 9v10M32 9v10M10 23h28"></path>
+              <path d="M17 29h.1M24 29h.1M31 29h.1M17 35h.1M24 35h.1M31 35h.1"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h1>Semester <span>Ends</span></h1>
+            <p class="stat-value green-value" id="semesterEnd">Jul 14</p>
+            <p class="stat-subtext" id="daysLeft">0 days left</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="widget.js" defer></script>
+  </body>
+</html>

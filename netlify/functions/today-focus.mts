@@ -1,5 +1,9 @@
 import type { Context } from "@netlify/functions";
 
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 type NotionText = {
   plain_text?: string;
 };
@@ -37,6 +41,9 @@ type AssignmentPayload = {
   name: string;
   course: string;
   dueDate: string;
+  type: string;
+  priority: string;
+  effort: string;
   completed: boolean;
 };
 
@@ -44,6 +51,9 @@ const PROPERTY_NAMES = {
   name: ["Assignment's"],
   course: ["Class"],
   dueDate: ["Due Date"],
+  type: ["Type"],
+  priority: ["Priority"],
+  effort: ["Effort"],
   completed: ["🏝️"]
 };
 
@@ -168,6 +178,9 @@ async function buildAssignment(page: NotionPage, token: string, relationTitleCac
     name: getPropertyText(page, PROPERTY_NAMES.name) || "Untitled assignment",
     course: courseTitles.filter(Boolean).join(", "),
     dueDate: getPropertyDate(page, PROPERTY_NAMES.dueDate),
+    type: getPropertyText(page, PROPERTY_NAMES.type),
+    priority: getPropertyText(page, PROPERTY_NAMES.priority),
+    effort: getPropertyText(page, PROPERTY_NAMES.effort),
     completed: getPropertyCheckbox(page, PROPERTY_NAMES.completed)
   };
 }
@@ -203,8 +216,8 @@ async function queryAllPages(token: string, databaseId: string) {
 }
 
 export default async (_req: Request, _context: Context) => {
-  const token = Netlify.env.get("NOTION_TOKEN");
-  const databaseId = Netlify.env.get("NOTION_ASSIGNMENTS_DATABASE_ID");
+  const token = process.env.NOTION_TOKEN;
+  const databaseId = process.env.NOTION_ASSIGNMENTS_DATABASE_ID;
 
   if (!token || !databaseId) {
     return Response.json({

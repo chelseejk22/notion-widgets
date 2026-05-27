@@ -140,27 +140,6 @@ svg {
   gap: clamp(8px, 1vw, 12px);
 }
 
-.title-icon {
-  flex: 0 0 auto;
-  width: clamp(28px, 2.45vw, 34px);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.96), rgba(212, 245, 238, 0.96));
-  color: var(--aqua-500);
-}
-
-.title-icon svg {
-  width: 64%;
-  height: 64%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 h1,
 h2,
 p {
@@ -341,27 +320,6 @@ h2 {
   min-width: 0;
 }
 
-.next-step-label span {
-  flex: 0 0 auto;
-  width: 24px;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(226, 250, 247, 0.86);
-  color: var(--aqua-500);
-}
-
-.next-step-label svg {
-  width: 68%;
-  height: 68%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .next-step p {
   min-width: 0;
   color: var(--gray-text);
@@ -456,10 +414,6 @@ h2 {
 
   time {
     font-size: 0.8rem;
-  }
-
-  .title-icon {
-    width: 30px;
   }
 
   .focus-panel {

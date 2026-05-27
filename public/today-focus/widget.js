@@ -1,5 +1,35 @@
 const ASSIGNMENTS_ENDPOINT = "/.netlify/functions/today-focus";
 
+const ICONS = {
+  header: "🌺",
+  dueToday: "☀️",
+  overdue: "🌊",
+  upcoming: "🌴",
+  nextStep: "✨"
+};
+
+const TYPE_ORDER = {
+  exam: 0,
+  quiz: 1,
+  project: 2,
+  homework: 3,
+  discussion: 4,
+  reading: 5,
+  other: 6
+};
+
+const PRIORITY_ORDER = {
+  high: 0,
+  normal: 1,
+  low: 2
+};
+
+const EFFORT_ORDER = {
+  quick: 0,
+  medium: 1,
+  deep: 2
+};
+
 function getFallbackAssignments() {
   const today = getToday();
   const yesterday = addDays(today, -1);
@@ -12,36 +42,54 @@ function getFallbackAssignments() {
     name: "Read Chapter 1 and notes",
     course: "ENG",
     dueDate: getDateKey(today),
+    type: "Reading",
+    priority: "Normal",
+    effort: "Medium",
     completed: false
   },
   {
     name: "Discussion board intro reply",
     course: "PSYC",
     dueDate: getDateKey(today),
+    type: "Discussion",
+    priority: "High",
+    effort: "Quick",
     completed: false
   },
   {
     name: "Syllabus quiz",
     course: "ENG",
     dueDate: getDateKey(yesterday),
+    type: "Quiz",
+    priority: "High",
+    effort: "Quick",
     completed: false
   },
   {
     name: "Module 1 lecture notes",
     course: "PSYC",
     dueDate: getDateKey(nextUp),
+    type: "Homework",
+    priority: "Normal",
+    effort: "Medium",
     completed: false
   },
   {
     name: "Week 1 check-in",
     course: "ENG",
     dueDate: getDateKey(laterThisWeek),
+    type: "Other",
+    priority: "Low",
+    effort: "Quick",
     completed: false
   },
   {
     name: "Completed setup task",
     course: "PSYC",
     dueDate: getDateKey(today),
+    type: "Other",
+    priority: "Low",
+    effort: "Quick",
     completed: true
   }
   ];
@@ -54,6 +102,11 @@ const emptyMessages = {
 };
 
 const elements = {
+  focusTitle: document.getElementById("focusTitle"),
+  dueTodayTitle: document.getElementById("dueTodayTitle"),
+  overdueTitle: document.getElementById("overdueTitle"),
+  upcomingTitle: document.getElementById("upcomingTitle"),
+  nextStepTitle: document.getElementById("nextStepTitle"),
   todayDate: document.getElementById("todayDate"),
   dueTodayList: document.getElementById("dueTodayList"),
   overdueList: document.getElementById("overdueList"),
@@ -64,6 +117,14 @@ const elements = {
   nextStepText: document.getElementById("nextStepText"),
   itemTemplate: document.getElementById("assignmentItemTemplate")
 };
+
+function applyIcons() {
+  elements.focusTitle.textContent = `${ICONS.header} Today’s Focus`;
+  elements.dueTodayTitle.textContent = `${ICONS.dueToday} Due Today`;
+  elements.overdueTitle.textContent = `${ICONS.overdue} Overdue`;
+  elements.upcomingTitle.textContent = `${ICONS.upcoming} Upcoming This Week`;
+  elements.nextStepTitle.textContent = `${ICONS.nextStep} Useful Next Step`;
+}
 
 function getToday() {
   const now = new Date();
@@ -133,18 +194,66 @@ function normalizeAssignment(item) {
     name: String(item.name || "Untitled assignment").trim(),
     course: String(item.course || item.class || "").trim(),
     dueDate: item.dueDate || "",
+    type: String(item.type || "").trim(),
+    priority: String(item.priority || "").trim(),
+    effort: String(item.effort || "").trim(),
     completed: item.completed === true
   };
 }
 
-function sortByDueDateThenName(a, b) {
-  const dateDiff = a.due.getTime() - b.due.getTime();
+function getRank(value, order, emptyRank, unknownRank = emptyRank) {
+  const key = String(value || "").trim().toLowerCase();
 
-  if (dateDiff !== 0) {
-    return dateDiff;
+  if (!key) {
+    return emptyRank;
   }
 
+  return Object.prototype.hasOwnProperty.call(order, key) ? order[key] : unknownRank;
+}
+
+function compareRanked(a, b, ranker) {
+  return ranker(a) - ranker(b);
+}
+
+function compareDueDate(a, b) {
+  return a.due.getTime() - b.due.getTime();
+}
+
+function compareName(a, b) {
   return a.name.localeCompare(b.name);
+}
+
+function priorityRank(assignment) {
+  return getRank(assignment.priority, PRIORITY_ORDER, 3);
+}
+
+function typeRank(assignment) {
+  return getRank(assignment.type, TYPE_ORDER, 7, TYPE_ORDER.other);
+}
+
+function effortRank(assignment) {
+  return getRank(assignment.effort, EFFORT_ORDER, 3);
+}
+
+function sortDueToday(a, b) {
+  return compareRanked(a, b, priorityRank)
+    || compareRanked(a, b, typeRank)
+    || compareRanked(a, b, effortRank)
+    || compareName(a, b);
+}
+
+function sortOverdue(a, b) {
+  return compareDueDate(a, b)
+    || compareRanked(a, b, priorityRank)
+    || compareName(a, b);
+}
+
+function sortUpcoming(a, b) {
+  return compareDueDate(a, b)
+    || compareRanked(a, b, priorityRank)
+    || compareRanked(a, b, typeRank)
+    || compareRanked(a, b, effortRank)
+    || compareName(a, b);
 }
 
 function groupAssignments(assignments, today) {
@@ -176,8 +285,9 @@ function groupAssignments(assignments, today) {
       }
     });
 
-  overdue.sort(sortByDueDateThenName);
-  upcoming.sort(sortByDueDateThenName);
+  dueToday.sort(sortDueToday);
+  overdue.sort(sortOverdue);
+  upcoming.sort(sortUpcoming);
 
   return { dueToday, overdue, upcoming };
 }
@@ -271,11 +381,15 @@ async function loadAssignments() {
     }
 
     const data = await response.json();
-    const assignments = data.source === "notion" && Array.isArray(data.assignments) ? data.assignments : getFallbackAssignments();
+    const isNotionSource = data.source === "notion" && Array.isArray(data.assignments);
+    const assignments = isNotionSource ? data.assignments : getFallbackAssignments();
+    console.info(`Today Focus assignment source: ${isNotionSource ? "notion" : "mock"}`);
     render(assignments);
   } catch (error) {
+    console.info("Today Focus assignment source: mock");
     render(getFallbackAssignments());
   }
 }
 
+applyIcons();
 loadAssignments();

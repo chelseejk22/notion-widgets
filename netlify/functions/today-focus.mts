@@ -17,6 +17,8 @@ type NotionProperty = {
   checkbox?: boolean | null;
   date?: NotionDate | null;
   formula?: {
+    boolean?: boolean | null;
+    date?: NotionDate | null;
     number?: number | null;
     string?: string | null;
   } | null;
@@ -35,6 +37,19 @@ type NotionProperty = {
 type NotionPage = {
   id?: string;
   properties?: Record<string, NotionProperty>;
+};
+
+type NotionQueryResponse = {
+  results?: NotionPage[];
+  has_more?: boolean;
+  next_cursor?: string | null;
+};
+
+type NotionDatabaseResponse = {
+  data_sources?: Array<{
+    id?: string | null;
+    data_source_id?: string | null;
+  }>;
 };
 
 type AssignmentPayload = {
@@ -56,6 +71,20 @@ const PROPERTY_NAMES = {
   effort: ["Effort"],
   completed: ["🏝️"]
 };
+
+const NOTION_API_BASE = "https://api.notion.com/v1";
+const NOTION_VERSION = "2026-03-11";
+const LEGACY_NOTION_VERSION = "2022-06-28";
+
+class NotionRequestError extends Error {
+  status: number;
+
+  constructor(status: number) {
+    super(`notion_http_${status}`);
+    this.name = "NotionRequestError";
+    this.status = status;
+  }
+}
 
 function getTextValue(property?: NotionProperty) {
   if (!property) {
@@ -80,6 +109,14 @@ function getTextValue(property?: NotionProperty) {
 
   if (typeof property.formula?.string === "string") {
     return property.formula.string;
+  }
+
+  if (typeof property.formula?.boolean === "boolean") {
+    return property.formula.boolean ? "true" : "false";
+  }
+
+  if (property.formula?.date?.start) {
+    return property.formula.date.start;
   }
 
   if (typeof property.number === "number") {
@@ -144,20 +181,36 @@ function getPageTitle(page: NotionPage) {
   return getTextValue(titleProperty);
 }
 
-async function retrievePage(token: string, pageId: string) {
-  const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Notion-Version": "2026-03-11"
-    }
+async function requestNotionJson<T>(
+  token: string,
+  path: string,
+  init: RequestInit = {},
+  notionVersion = NOTION_VERSION
+) {
+  const headers = new Headers(init.headers);
+  headers.set("Authorization", `Bearer ${token}`);
+  headers.set("Content-Type", "application/json");
+  headers.set("Notion-Version", notionVersion);
+
+  const response = await fetch(`${NOTION_API_BASE}${path}`, {
+    ...init,
+    headers
   });
 
   if (!response.ok) {
-    return "";
+    throw new NotionRequestError(response.status);
   }
 
-  const page = await response.json();
-  return getPageTitle(page);
+  return (await response.json()) as T;
+}
+
+async function retrievePage(token: string, pageId: string) {
+  try {
+    const page = await requestNotionJson<NotionPage>(token, `/pages/${pageId}`);
+    return getPageTitle(page);
+  } catch {
+    return "";
+  }
 }
 
 async function getRelationTitle(token: string, pageId: string, cache: Map<string, string>) {
@@ -185,29 +238,24 @@ async function buildAssignment(page: NotionPage, token: string, relationTitleCac
   };
 }
 
-async function queryAllPages(token: string, databaseId: string) {
+async function queryPages(token: string, path: string, notionVersion = NOTION_VERSION) {
   const pages: NotionPage[] = [];
   let startCursor: string | undefined;
 
   do {
-    const response = await fetch(`https://api.notion.com/v1/data_sources/${databaseId}/query`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        "Notion-Version": "2026-03-11"
+    const data = await requestNotionJson<NotionQueryResponse>(
+      token,
+      path,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          page_size: 100,
+          start_cursor: startCursor
+        })
       },
-      body: JSON.stringify({
-        page_size: 100,
-        start_cursor: startCursor
-      })
-    });
+      notionVersion
+    );
 
-    if (!response.ok) {
-      throw new Error(`Notion API returned ${response.status}`);
-    }
-
-    const data = await response.json();
     pages.push(...(data.results ?? []));
     startCursor = data.has_more ? data.next_cursor : undefined;
   } while (startCursor);
@@ -215,19 +263,68 @@ async function queryAllPages(token: string, databaseId: string) {
   return pages;
 }
 
+async function queryDataSourcePages(token: string, dataSourceId: string) {
+  return queryPages(token, `/data_sources/${dataSourceId}/query`);
+}
+
+async function queryLegacyDatabasePages(token: string, databaseId: string) {
+  return queryPages(token, `/databases/${databaseId}/query`, LEGACY_NOTION_VERSION);
+}
+
+async function getFirstDataSourceId(token: string, databaseId: string) {
+  const database = await requestNotionJson<NotionDatabaseResponse>(token, `/databases/${databaseId}`);
+  const firstDataSource = database.data_sources?.find((source) => source.id || source.data_source_id);
+  return firstDataSource?.id || firstDataSource?.data_source_id || "";
+}
+
+async function queryConfiguredAssignmentsSource(token: string, configuredId: string) {
+  try {
+    return await queryDataSourcePages(token, configuredId);
+  } catch (error) {
+    const canTryDatabaseLookup = error instanceof NotionRequestError && [400, 404].includes(error.status);
+
+    if (!canTryDatabaseLookup) {
+      throw error;
+    }
+
+    let dataSourceId = "";
+
+    try {
+      dataSourceId = await getFirstDataSourceId(token, configuredId);
+    } catch (lookupError) {
+      const canTryLegacyQuery = lookupError instanceof NotionRequestError && [400, 404].includes(lookupError.status);
+
+      if (!canTryLegacyQuery) {
+        throw lookupError;
+      }
+    }
+
+    if (dataSourceId) {
+      return queryDataSourcePages(token, dataSourceId);
+    }
+
+    return queryLegacyDatabasePages(token, configuredId);
+  }
+}
+
+function mockResponse(reason: "missing_env" | "notion_query_failed") {
+  return Response.json({
+    source: "mock",
+    reason,
+    assignments: []
+  });
+}
+
 export default async (_req: Request, _context: Context) => {
-  const token = process.env.NOTION_TOKEN;
-  const databaseId = process.env.NOTION_ASSIGNMENTS_DATABASE_ID;
+  const token = process.env.NOTION_TOKEN?.trim();
+  const databaseId = process.env.NOTION_ASSIGNMENTS_DATABASE_ID?.trim();
 
   if (!token || !databaseId) {
-    return Response.json({
-      source: "fallback",
-      assignments: []
-    });
+    return mockResponse("missing_env");
   }
 
   try {
-    const pages = await queryAllPages(token, databaseId);
+    const pages = await queryConfiguredAssignmentsSource(token, databaseId);
     const relationTitleCache = new Map<string, string>();
     const assignments = (await Promise.all(pages.map((page) => buildAssignment(page, token, relationTitleCache))))
       .filter((assignment) => assignment.dueDate && !assignment.completed);
@@ -237,11 +334,8 @@ export default async (_req: Request, _context: Context) => {
       assignments
     });
   } catch (error) {
-    console.error(error);
+    console.error("Today Focus Notion query failed; returning mock source.");
 
-    return Response.json({
-      source: "fallback",
-      assignments: []
-    });
+    return mockResponse("notion_query_failed");
   }
 };

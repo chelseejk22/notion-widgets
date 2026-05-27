@@ -383,7 +383,9 @@ async function loadAssignments() {
     const data = await response.json();
     const isNotionSource = data.source === "notion" && Array.isArray(data.assignments);
     const assignments = isNotionSource ? data.assignments : getFallbackAssignments();
-    console.info(`Today Focus assignment source: ${isNotionSource ? "notion" : "mock"}`);
+    const source = isNotionSource ? "notion" : "mock";
+    const reason = typeof data.reason === "string" && data.reason ? ` (${data.reason})` : "";
+    console.info(`Today Focus assignment source: ${source}${reason}`);
     render(assignments);
   } catch (error) {
     console.info("Today Focus assignment source: mock");

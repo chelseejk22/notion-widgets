@@ -52,6 +52,11 @@ type NotionDatabaseResponse = {
   }>;
 };
 
+type NotionApiErrorBody = {
+  code?: string;
+  message?: string;
+};
+
 type AssignmentPayload = {
   name: string;
   course: string;
@@ -62,6 +67,20 @@ type AssignmentPayload = {
   completed: boolean;
 };
 
+type SafeMockReason =
+  | "missing_env"
+  | "notion_unauthorized"
+  | "notion_object_not_found"
+  | "notion_database_not_shared"
+  | "notion_bad_database_id"
+  | "notion_property_mapping_failed"
+  | "notion_query_failed";
+
+type QueryResolutionMode =
+  | "data_source_direct"
+  | "database_to_data_source"
+  | "database_legacy";
+
 const PROPERTY_NAMES = {
   name: ["Assignment's"],
   course: ["Class"],
@@ -69,7 +88,7 @@ const PROPERTY_NAMES = {
   type: ["Type"],
   priority: ["Priority"],
   effort: ["Effort"],
-  completed: ["🏝️"]
+  completed: ["\uD83C\uDFDD\uFE0F"]
 };
 
 const NOTION_API_BASE = "https://api.notion.com/v1";
@@ -78,11 +97,17 @@ const LEGACY_NOTION_VERSION = "2022-06-28";
 
 class NotionRequestError extends Error {
   status: number;
+  code: string;
+  path: string;
+  apiMessage: string;
 
-  constructor(status: number) {
-    super(`notion_http_${status}`);
+  constructor(status: number, code: string, path: string, apiMessage: string) {
+    super(`notion_http_${status}_${code}`);
     this.name = "NotionRequestError";
     this.status = status;
+    this.code = code;
+    this.path = path;
+    this.apiMessage = apiMessage;
   }
 }
 
@@ -181,6 +206,59 @@ function getPageTitle(page: NotionPage) {
   return getTextValue(titleProperty);
 }
 
+function looksLikeNotionId(value: string) {
+  return /^[0-9a-fA-F-]{32,36}$/.test(value);
+}
+
+function pageHasAnyProperty(page: NotionPage, names: string[]) {
+  return names.some((name) => Boolean(page.properties?.[name]));
+}
+
+function hasExpectedPropertyMapping(pages: NotionPage[]) {
+  if (!pages.length) {
+    return true;
+  }
+
+  return pages.some((page) => {
+    const hasName = pageHasAnyProperty(page, PROPERTY_NAMES.name);
+    const hasDueDate = pageHasAnyProperty(page, PROPERTY_NAMES.dueDate);
+    const hasCompletion = pageHasAnyProperty(page, PROPERTY_NAMES.completed);
+    return hasName && hasDueDate && hasCompletion;
+  });
+}
+
+function classifyNotionError(error: unknown, configuredId: string): SafeMockReason {
+  if (!looksLikeNotionId(configuredId)) {
+    return "notion_bad_database_id";
+  }
+
+  if (!(error instanceof NotionRequestError)) {
+    return "notion_query_failed";
+  }
+
+  if (error.status === 401 || error.code === "unauthorized") {
+    return "notion_unauthorized";
+  }
+
+  if (error.status === 403 || error.code === "restricted_resource") {
+    return "notion_database_not_shared";
+  }
+
+  if (error.status === 400 && (error.code === "invalid_request_url" || error.code === "validation_error")) {
+    return "notion_bad_database_id";
+  }
+
+  if (error.status === 404 || error.code === "object_not_found") {
+    if (error.path.startsWith("/data_sources/") || error.path.startsWith("/databases/")) {
+      return "notion_database_not_shared";
+    }
+
+    return "notion_object_not_found";
+  }
+
+  return "notion_query_failed";
+}
+
 async function requestNotionJson<T>(
   token: string,
   path: string,
@@ -198,7 +276,22 @@ async function requestNotionJson<T>(
   });
 
   if (!response.ok) {
-    throw new NotionRequestError(response.status);
+    let errorCode = "unknown_error";
+    let errorMessage = "";
+
+    try {
+      const payload = (await response.json()) as NotionApiErrorBody;
+      if (typeof payload.code === "string" && payload.code) {
+        errorCode = payload.code;
+      }
+      if (typeof payload.message === "string" && payload.message) {
+        errorMessage = payload.message;
+      }
+    } catch {
+      errorCode = "unknown_error";
+    }
+
+    throw new NotionRequestError(response.status, errorCode, path, errorMessage);
   }
 
   return (await response.json()) as T;
@@ -277,9 +370,13 @@ async function getFirstDataSourceId(token: string, databaseId: string) {
   return firstDataSource?.id || firstDataSource?.data_source_id || "";
 }
 
-async function queryConfiguredAssignmentsSource(token: string, configuredId: string) {
+async function queryConfiguredAssignmentsSource(
+  token: string,
+  configuredId: string
+): Promise<{ pages: NotionPage[]; resolution: QueryResolutionMode }> {
   try {
-    return await queryDataSourcePages(token, configuredId);
+    const pages = await queryDataSourcePages(token, configuredId);
+    return { pages, resolution: "data_source_direct" };
   } catch (error) {
     const canTryDatabaseLookup = error instanceof NotionRequestError && [400, 404].includes(error.status);
 
@@ -300,14 +397,16 @@ async function queryConfiguredAssignmentsSource(token: string, configuredId: str
     }
 
     if (dataSourceId) {
-      return queryDataSourcePages(token, dataSourceId);
+      const pages = await queryDataSourcePages(token, dataSourceId);
+      return { pages, resolution: "database_to_data_source" };
     }
 
-    return queryLegacyDatabasePages(token, configuredId);
+    const pages = await queryLegacyDatabasePages(token, configuredId);
+    return { pages, resolution: "database_legacy" };
   }
 }
 
-function mockResponse(reason: "missing_env" | "notion_query_failed") {
+function mockResponse(reason: SafeMockReason) {
   return Response.json({
     source: "mock",
     reason,
@@ -318,15 +417,36 @@ function mockResponse(reason: "missing_env" | "notion_query_failed") {
 export default async (_req: Request, _context: Context) => {
   const token = process.env.NOTION_TOKEN?.trim();
   const databaseId = process.env.NOTION_ASSIGNMENTS_DATABASE_ID?.trim();
+  const tokenPresent = Boolean(token);
+  const databaseIdPresent = Boolean(databaseId);
+
+  console.info("Today Focus env presence", {
+    tokenPresent,
+    databaseIdPresent
+  });
 
   if (!token || !databaseId) {
     return mockResponse("missing_env");
   }
 
+  if (!looksLikeNotionId(databaseId)) {
+    console.info("Today Focus configured ID format invalid");
+    return mockResponse("notion_bad_database_id");
+  }
+
   try {
-    const pages = await queryConfiguredAssignmentsSource(token, databaseId);
+    const queryResult = await queryConfiguredAssignmentsSource(token, databaseId);
+    console.info("Today Focus source resolution", {
+      resolution: queryResult.resolution
+    });
+
+    if (!hasExpectedPropertyMapping(queryResult.pages)) {
+      console.info("Today Focus property mapping did not match expected schema");
+      return mockResponse("notion_property_mapping_failed");
+    }
+
     const relationTitleCache = new Map<string, string>();
-    const assignments = (await Promise.all(pages.map((page) => buildAssignment(page, token, relationTitleCache))))
+    const assignments = (await Promise.all(queryResult.pages.map((page) => buildAssignment(page, token, relationTitleCache))))
       .filter((assignment) => assignment.dueDate && !assignment.completed);
 
     return Response.json({
@@ -334,8 +454,13 @@ export default async (_req: Request, _context: Context) => {
       assignments
     });
   } catch (error) {
-    console.error("Today Focus Notion query failed; returning mock source.");
+    const reason = classifyNotionError(error, databaseId);
+    console.error("Today Focus Notion query failed; returning mock source.", {
+      reason,
+      errorType: error instanceof NotionRequestError ? error.code : "unknown_error",
+      errorPath: error instanceof NotionRequestError ? error.path : "unknown_path"
+    });
 
-    return mockResponse("notion_query_failed");
+    return mockResponse(reason);
   }
 };

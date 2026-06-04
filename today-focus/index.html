@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Today&apos;s Focus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="focus-widget" aria-live="polite">
+      <svg class="focus-decor" viewBox="0 0 1200 320" aria-hidden="true" focusable="false">
+        <g class="sun-mark" transform="translate(72 58)">
+          <circle cx="0" cy="0" r="18"></circle>
+          <path d="M0-38v12M0 26v12M-38 0h12M26 0h12M-27-27l9 9M18 18l9 9M27-27l-9 9M-18 18l-9 9"></path>
+        </g>
+        <g class="palm-lines" transform="translate(1024 88)">
+          <path d="M54 142C49 95 35 50 11 5"></path>
+          <path d="M12 7c48 12 76 37 91 77M12 7c34 32 48 70 46 115M10 8c-23 30-29 62-18 98M12 7c-31 11-52 32-62 62M12 7c43-7 81 2 113 27"></path>
+        </g>
+        <g class="leaf-lines" transform="translate(850 172) rotate(-18)">
+          <path d="M16 90C-6 52 4 16 40 3c44 13 64 51 45 90-22-9-43-12-69-3Z"></path>
+          <path d="M41 6c4 29 0 57-12 83M54 25c13 4 25 2 37-5M49 43c15 7 29 7 43 1M35 56c-12 5-24 5-37 0M32 73c-10 6-20 8-31 6"></path>
+        </g>
+        <g class="wave-lines" transform="translate(0 260)">
+          <path d="M0 26c92-35 191-34 296 3 108 37 217 33 328-12 127-51 253-43 378 24 67 36 133 31 198-15v54H0Z"></path>
+          <path d="M0 42c123 28 231 24 325-14 103-42 215-36 338 19 82 37 181 31 298-17 91-37 171-30 239 20v30H0Z"></path>
+        </g>
+      </svg>
+
+      <section class="focus-panel">
+        <header class="focus-header">
+          <div class="title-wrap">
+            <h1 id="focusTitle">Today&apos;s Focus</h1>
+          </div>
+          <time id="todayDate" datetime="">Monday, June 8</time>
+        </header>
+
+        <section class="focus-columns" aria-label="Assignment focus lists">
+          <article class="focus-column" aria-labelledby="dueTodayTitle">
+            <div class="column-heading">
+              <h2 id="dueTodayTitle">Due Today</h2>
+              <span class="count-pill" id="dueTodayCount">0</span>
+            </div>
+            <ul class="assignment-list" id="dueTodayList"></ul>
+          </article>
+
+          <article class="focus-column" aria-labelledby="overdueTitle">
+            <div class="column-heading">
+              <h2 id="overdueTitle">Overdue</h2>
+              <span class="count-pill warning" id="overdueCount">0</span>
+            </div>
+            <ul class="assignment-list" id="overdueList"></ul>
+          </article>
+
+          <article class="focus-column" aria-labelledby="upcomingTitle">
+            <div class="column-heading">
+              <h2 id="upcomingTitle">Upcoming This Week</h2>
+              <span class="count-pill" id="upcomingCount">0</span>
+            </div>
+            <ul class="assignment-list" id="upcomingList"></ul>
+          </article>
+        </section>
+
+        <section class="next-step" aria-labelledby="nextStepTitle">
+          <div class="next-step-label">
+            <h2 id="nextStepTitle">Useful Next Step</h2>
+          </div>
+          <p id="nextStepText">Loading today&apos;s focus...</p>
+        </section>
+      </section>
+    </main>
+
+    <template id="assignmentItemTemplate">
+      <li class="assignment-item">
+        <span class="check-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M6 12.5 10 16l8-9"></path>
+          </svg>
+        </span>
+        <span class="assignment-copy">
+          <span class="assignment-topline">
+            <span class="course-label"></span>
+            <span class="due-label"></span>
+          </span>
+          <span class="assignment-name"></span>
+        </span>
+      </li>
+    </template>
+
+    <script src="widget.js" defer></script>
+  </body>
+</html>

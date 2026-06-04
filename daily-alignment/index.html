@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chelsee's Daily Alignment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="alignment-widget" aria-live="polite">
+      <section class="alignment-card">
+        <div class="moon-detail" aria-hidden="true">☾</div>
+        <div class="star star-one" aria-hidden="true">✦</div>
+        <div class="star star-two" aria-hidden="true">✧</div>
+
+        <header class="widget-header">
+          <p class="eyebrow">Chelsee's Daily Alignment</p>
+          <div class="title-row">
+            <h1>♊ Gemini</h1>
+            <p id="dateLine" class="date-line"></p>
+          </div>
+          <p class="subtitle">Gemini Sun • Pisces Moon • Libra North Node</p>
+          <p id="moodLine" class="mood-line"></p>
+        </header>
+
+        <div class="voice-controls" role="group" aria-label="Choose the daily alignment voice">
+          <button class="voice-button is-active" type="button" data-voice="soft" aria-pressed="true">Soft</button>
+          <button class="voice-button" type="button" data-voice="direct" aria-pressed="false">Direct</button>
+          <button class="voice-button" type="button" data-voice="luxe" aria-pressed="false">Luxe</button>
+        </div>
+
+        <div class="message-grid">
+          <article class="message-panel">
+            <h2>What the stars lining up mean for you</h2>
+            <p id="dailyMeaning"></p>
+          </article>
+
+          <article class="message-panel">
+            <h2>Your Chart Thread</h2>
+            <p id="chartThread"></p>
+          </article>
+        </div>
+
+        <div class="mini-card-grid">
+          <article class="mini-card">
+            <span>Lean Into</span>
+            <p id="leanInto"></p>
+          </article>
+          <article class="mini-card">
+            <span>Release</span>
+            <p id="release"></p>
+          </article>
+          <article class="mini-card">
+            <span>Small Move</span>
+            <p id="smallMove"></p>
+          </article>
+        </div>
+
+        <footer class="anchor-line">
+          <span>✨ Today's anchor:</span>
+          <p id="dailyAnchor"></p>
+        </footer>
+      </section>
+    </main>
+
+    <script src="widget.js" defer></script>
+  </body>
+</html>

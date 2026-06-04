@@ -1,0 +1,445 @@
+:root {
+  --aqua-50: #f3fffd;
+  --aqua-100: #e3f9f8;
+  --aqua-200: #c9eeee;
+  --aqua-300: #98dddc;
+  --aqua-500: #32bebd;
+  --teal-700: #0f5467;
+  --teal-800: #0c4050;
+  --mint-100: #e8f8ef;
+  --mint-200: #ccefdc;
+  --green-500: #1e9b66;
+  --gray-text: #6f767c;
+  --line: rgba(49, 190, 189, 0.34);
+  --green-line: rgba(51, 176, 118, 0.34);
+  --page-pad: clamp(4px, 0.7vw, 10px);
+  --outer-pad: clamp(11px, 1.25vw, 18px);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--teal-800);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  padding: var(--page-pad);
+}
+
+svg {
+  display: block;
+}
+
+.summer-stats {
+  position: relative;
+  width: 100%;
+  height: clamp(148px, calc(100svh - (var(--page-pad) * 2) - 2px), 264px);
+  min-height: 0;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 7% 10%, rgba(211, 249, 244, 0.72) 0 13%, transparent 31%),
+    radial-gradient(circle at 68% 0%, rgba(230, 249, 239, 0.78) 0 18%, transparent 36%),
+    linear-gradient(180deg, rgba(253, 255, 255, 0.96), rgba(239, 252, 250, 0.9));
+}
+
+.summer-stats::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.65), transparent 22%, transparent 78%, rgba(255, 255, 255, 0.6)),
+    repeating-linear-gradient(135deg, rgba(35, 179, 178, 0.035) 0 1px, transparent 1px 15px);
+  pointer-events: none;
+}
+
+.stats-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 1.45vw, 18px);
+  width: 100%;
+  height: 100%;
+  padding: var(--outer-pad);
+  padding-bottom: clamp(20px, 3vw, 34px);
+}
+
+.stat-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(48px, 5.2vw, 76px) minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--green-line);
+  border-radius: clamp(12px, 1.3vw, 18px);
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.97), rgba(250, 255, 253, 0.91)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(232, 248, 247, 0.45));
+  padding: clamp(10px, 1.25vw, 18px);
+}
+
+.progress-card {
+  border-color: var(--line);
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -18% -42% 38%;
+  height: 72%;
+  border-radius: 999px 999px 0 0;
+  background: radial-gradient(ellipse at center, rgba(196, 239, 220, 0.28), transparent 64%);
+  pointer-events: none;
+}
+
+.icon-bubble,
+.stat-content {
+  position: relative;
+  z-index: 2;
+}
+
+.icon-bubble {
+  width: clamp(44px, 4.9vw, 68px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  align-self: start;
+  border-radius: 50%;
+  margin-top: clamp(0px, 0.6vw, 7px);
+}
+
+.icon-blue {
+  background: radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.9), rgba(209, 242, 241, 0.9));
+  color: #2caeb0;
+}
+
+.icon-green {
+  background: radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.92), rgba(214, 244, 225, 0.92));
+  color: var(--green-500);
+}
+
+.icon-bubble svg {
+  width: 58%;
+  height: 58%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stat-content {
+  min-width: 0;
+  padding-left: clamp(8px, 1vw, 16px);
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  color: var(--teal-700);
+  font-size: clamp(0.96rem, 1.5vw, 1.62rem);
+  font-weight: 760;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+h1 span {
+  white-space: nowrap;
+}
+
+.stat-value {
+  margin-top: clamp(7px, 0.9vw, 13px);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.05rem, 3.9vw, 4.15rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.aqua-value {
+  color: var(--aqua-500);
+}
+
+.green-value {
+  color: #168856;
+}
+
+.stat-subtext {
+  margin-top: clamp(8px, 0.8vw, 13px);
+  color: var(--gray-text);
+  font-size: clamp(0.78rem, 1.05vw, 1.15rem);
+  font-weight: 500;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.short-text {
+  display: none;
+}
+
+.progress-track {
+  width: 100%;
+  height: clamp(8px, 0.85vw, 13px);
+  margin-top: clamp(9px, 1vw, 15px);
+  overflow: hidden;
+  border: 1px solid rgba(94, 211, 198, 0.18);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(201, 238, 238, 0.62), rgba(232, 248, 239, 0.64));
+}
+
+.progress-fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #34c5cc 0%, #42cfc0 50%, #7fddb2 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  transition: width 420ms ease;
+}
+
+.tropical-decor,
+.wave-band {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.tropical-decor {
+  top: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0.66;
+}
+
+.tropical-decor path,
+.tropical-decor ellipse,
+.tropical-decor circle {
+  fill: rgba(112, 218, 209, 0.16);
+  stroke: rgba(81, 191, 179, 0.18);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.decor-monstera path,
+.decor-wave path {
+  fill: rgba(117, 215, 166, 0.14);
+  stroke: rgba(70, 179, 136, 0.14);
+}
+
+.decor-palm path,
+.decor-birds path {
+  fill: none;
+}
+
+.decor-hibiscus {
+  opacity: 0.85;
+}
+
+.wave-band {
+  height: clamp(26px, 4.3vw, 54px);
+  opacity: 0.72;
+}
+
+.wave-band svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wave-one {
+  fill: rgba(169, 231, 229, 0.5);
+}
+
+.wave-two {
+  fill: rgba(200, 244, 233, 0.48);
+}
+
+@media (max-width: 980px) {
+  .stat-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: clamp(8px, 1.3vw, 13px);
+  }
+
+  .icon-bubble {
+    align-self: auto;
+    width: clamp(34px, 5.1vw, 50px);
+    margin: 0 0 clamp(4px, 0.7vw, 7px);
+  }
+
+  .stat-content {
+    width: 100%;
+    padding-left: 0;
+  }
+
+  h1 {
+    font-size: clamp(0.82rem, 1.85vw, 1.08rem);
+  }
+
+  .stat-value {
+    margin-top: 5px;
+    font-size: clamp(1.65rem, 4.2vw, 2.45rem);
+  }
+
+  .stat-subtext {
+    margin-top: 5px;
+    font-size: clamp(0.66rem, 1.55vw, 0.82rem);
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --outer-pad: clamp(7px, 2vw, 9px);
+    --page-pad: 5px;
+  }
+
+  .summer-stats {
+    border-radius: 13px;
+  }
+
+  .stats-grid {
+    gap: 5px;
+    padding-bottom: 19px;
+  }
+
+  .stat-card {
+    border-radius: 10px;
+    padding: 7px 5px;
+  }
+
+  .icon-bubble {
+    width: clamp(28px, 8.1vw, 35px);
+    margin-bottom: 4px;
+  }
+
+  .icon-bubble svg {
+    stroke-width: 3.4;
+  }
+
+  h1 {
+    font-size: clamp(0.64rem, 2.95vw, 0.8rem);
+    line-height: 1.03;
+  }
+
+  .stat-value {
+    margin-top: 4px;
+    font-size: clamp(1.38rem, 8vw, 1.86rem);
+  }
+
+  .stat-subtext {
+    margin-top: 4px;
+    font-size: clamp(0.54rem, 2.7vw, 0.66rem);
+    letter-spacing: 0;
+  }
+
+  .full-text {
+    display: none;
+  }
+
+  .short-text {
+    display: inline;
+  }
+
+  .progress-track {
+    height: 7px;
+    margin-top: 7px;
+  }
+
+  .tropical-decor {
+    opacity: 0.34;
+  }
+
+  .decor-hibiscus,
+  .decor-palm {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 359px) {
+  html,
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .summer-stats {
+    height: auto;
+    min-height: 236px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-bottom: 22px;
+  }
+
+  .stat-card {
+    min-height: 94px;
+  }
+}
+
+@media (max-height: 210px) and (min-width: 360px) {
+  :root {
+    --outer-pad: clamp(6px, 1.1vw, 10px);
+  }
+
+  .stats-grid {
+    gap: clamp(5px, 0.9vw, 10px);
+    padding-bottom: 18px;
+  }
+
+  .stat-card {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .icon-bubble {
+    width: clamp(27px, 4.7vw, 42px);
+    margin-bottom: 3px;
+  }
+
+  h1 {
+    font-size: clamp(0.6rem, 1.55vw, 0.88rem);
+  }
+
+  .stat-value {
+    margin-top: 3px;
+    font-size: clamp(1.28rem, 3.8vw, 2.05rem);
+  }
+
+  .stat-subtext {
+    margin-top: 3px;
+    font-size: clamp(0.51rem, 1.3vw, 0.72rem);
+  }
+
+  .progress-track {
+    height: 6px;
+    margin-top: 5px;
+  }
+
+  .wave-band {
+    height: 24px;
+  }
+}

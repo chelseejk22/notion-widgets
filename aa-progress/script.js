@@ -26,7 +26,9 @@ function setError(message) {
 
 async function loadProgress() {
   try {
-    const apiUrl = window.location.protocol === "file:" ? null : "/api/progress";
+    const apiUrl = window.location.protocol === "file:" || window.location.hostname.endsWith("github.io")
+      ? null
+      : "/api/progress";
 
     if (!apiUrl) {
       setProgress(FALLBACK_PROGRESS);

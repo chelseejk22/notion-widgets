@@ -1,0 +1,106 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 22px;
+  min-height: 100vh;
+  background: #f2edff;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  font-family: Arial, sans-serif;
+}
+
+#wrap {
+  position: relative;
+  width: min(220px, 78vw);
+  height: min(220px, 78vw);
+  cursor: pointer;
+  filter: drop-shadow(0 6px 28px rgba(119,48,236,0.38));
+  transition: filter 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+#blobOuter {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: path('M 112 6 C 158 2 208 36 214 80 C 220 124 198 172 162 192 C 126 212 76 216 44 194 C 12 172 -4 128 6 88 C 16 48 52 14 88 8 C 96 6 104 6 112 6 Z');
+  animation: breathe 4.5s ease-in-out infinite;
+}
+
+#blobFill {
+  position: absolute;
+  inset: 0;
+  background: #7730ec;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    clip-path: path('M 112 6 C 158 2 208 36 214 80 C 220 124 198 172 162 192 C 126 212 76 216 44 194 C 12 172 -4 128 6 88 C 16 48 52 14 88 8 C 96 6 104 6 112 6 Z');
+  }
+
+  50% {
+    clip-path: path('M 108 8 C 154 4 204 40 210 84 C 216 128 200 168 168 188 C 136 208 82 218 50 198 C 18 178 -2 132 8 92 C 18 52 54 16 90 10 C 98 8 108 8 108 8 Z');
+  }
+}
+
+.cel {
+  position: absolute;
+  top: 110px;
+  left: 110px;
+  will-change: transform;
+}
+
+#sun {
+  width: 26px;
+  height: 26px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 4px rgba(255,255,255,0.35);
+}
+
+#wave {
+  position: absolute;
+  bottom: -4px;
+  left: -22px;
+  width: 264px;
+  height: 132px;
+  animation: waveFloat 3.6s ease-in-out infinite;
+}
+
+@keyframes waveFloat {
+  0% { transform: translateX(0px); }
+  28% { transform: translateX(-11px); }
+  60% { transform: translateX(9px); }
+  100% { transform: translateX(0px); }
+}
+
+.label-wrap {
+  position: relative;
+  height: 16px;
+  width: 80px;
+  pointer-events: none;
+}
+
+.lbl {
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Day Night Blob Widget</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="wrap" onclick="toggle()">
+    <div id="blobOuter">
+      <div id="blobFill">
+
+        <div id="sun" class="cel"></div>
+
+        <div id="moon" class="cel">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="white" d="M12.5 23.5a11.5 11.5 0 0 0 9.934-5.731 11.5 11.5 0 0 1-10.148-11.412 11.5 11.5 0 0 1 1.564-5.767 11.5 11.5 0 0 0-1.35-.09 11.5 11.5 0 0 0-11.5 11.5 11.5 11.5 0 0 0 11.5 11.5z"/>
+          </svg>
+        </div>
+
+        <svg id="wave" viewBox="0 0 264 132">
+          <path id="w1" d="M0,44 C20,36 46,20 78,27 C110,34 130,50 158,52 C183,54 210,43 242,37 L264,37 L264,132 L0,132 Z" fill="#a8cfe0"/>
+          <path id="w2" d="M0,63 C30,55 60,67 90,63 C120,59 144,47 180,52 C208,56 236,49 264,56 L264,132 L0,132 Z" fill="#c4dfe9"/>
+          <rect id="w3" y="79" width="264" height="53" fill="#dff0f6"/>
+        </svg>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="label-wrap">
+    <span id="lNight" class="lbl" style="color:#7730ec;">NIGHT</span>
+    <span id="lDay" class="lbl" style="color:#b8920e; opacity:0;">DAY</span>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
